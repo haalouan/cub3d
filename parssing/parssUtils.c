@@ -6,7 +6,7 @@
 /*   By: haalouan <haalouan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/04 18:43:09 by haalouan          #+#    #+#             */
-/*   Updated: 2024/10/16 18:06:20 by haalouan         ###   ########.fr       */
+/*   Updated: 2024/10/20 20:27:20 by haalouan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ void	protecte_map(char **all_lines, t_map *textures, int i, int k)
 	if (textures->map[i][k] != '0' && textures->map[i][k] != '1'
 		&& textures->map[i][k] != 'E' && textures->map[i][k] != 'N'
 		&& textures->map[i][k] != 'S' && textures->map[i][k] != 'W'
-		&& textures->map[i][k] != ' ' && textures->map[i][k] != '\t')
+		&& textures->map[i][k] != ' ' && textures->map[i][k] != '\t'
+		&& textures->map[i][k] != 'D')
 		manage_error(all_lines, textures);
 }
 

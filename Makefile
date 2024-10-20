@@ -10,12 +10,12 @@ OBJS = ${SRCS:.c=.o}
 NAME = cub3d
 CC = cc
 RM = rm -f
-CFLAGS = -Wall -Wextra -Werror -g #-fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 LIBFT_DIR = sources/libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
-$(NAME):  $(OBJS) $(LIBFT)
+$(NAME): $(OBJS) $(LIBFT)
 	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) ${MLX_FLAGS} ${MLX_LIB} -Iinclude -lglfw -L"/Users/haalouan/.brew/opt/glfw/lib/" -o $(NAME)
 	@echo "Cub3d is ready"
 
@@ -36,10 +36,6 @@ clean:
 fclean: clean
 	@${RM} ${NAME}
 	@$(MAKE) -C $(LIBFT_DIR) fclean
-
-CMAKE: 
-	# @git clone https://github.com/codam-coding-college/MLX42.git
-	@cd MLX42 && cmake -B build && cmake --build build -j4
 
 re: fclean all
 

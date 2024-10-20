@@ -6,7 +6,7 @@
 /*   By: haalouan <haalouan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 10:52:54 by haalouan          #+#    #+#             */
-/*   Updated: 2024/10/16 18:06:56 by haalouan         ###   ########.fr       */
+/*   Updated: 2024/10/20 20:33:10 by haalouan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,21 @@
 # include <unistd.h>
 # include <math.h>
 # include <fcntl.h>
-# include <stdlib.h>
-# include <stdio.h>
 # include "sources/get_next_line/get_next_line.h"
 # include "sources/libft/libft.h"
+# include <stdlib.h>
+# include <math.h>
 # include "MLX42/include/MLX42/MLX42.h"
+# include <stdio.h>
 
 # define BLOCK_W 64
 # define BLOCK_L 64
+# define W_HEIGHT 20
+# define M_M_H 4
+# define M_M_W 4
+# define W_WIDTH 20
 # define FOV 60
+# define BORDER_WIDTH 4
 
 typedef struct mlx_v
 {
@@ -70,21 +76,22 @@ typedef struct player_v
 
 typedef struct map_v
 {
-	char			*type;
-	struct mlx_v	*interface;
-	int				**map_values;
-	char			**m_values;
-	mlx_texture_t	**all_textures;
-	struct player_v	*player;
-	int				width;
-	int				height;
-	uint32_t		floor;
-	uint32_t		ceiling;
+	char					*type;
+	struct mlx_v			*interface;
+	int						**map_values;
+	char					**m_values;
+	mlx_texture_t			**all_textures;
+	struct player_v			*player;
+	int						width;
+	int						height;
+	uint32_t				floor;
+	uint32_t				ceiling;
+	struct minimap_v 		*minimap;
 }	t_map_e;
 
 typedef struct ray_v
 {
-	long				distance;
+	double				distance;
 	int					hit_vertical;
 	double				angle;
 	double				x;
@@ -106,12 +113,12 @@ typedef struct bitmap_v
 
 typedef struct wall_v
 {
-	long			distance;
-	long			distance_to_projection;
+	double			distance;
+	double			distance_to_projection;
 	double			height;
-	long			wall_height;
-	long			wall_top;
-	long			wall_bot;
+	double			wall_height;
+	double			wall_top;
+	double			wall_bot;
 	struct bitmap_v	*t;
 	double			angle;
 	struct wall_v	*next;
@@ -122,6 +129,14 @@ typedef struct data_v
 	void			*data;
 	struct data_v	*next;
 }	t_data;
+
+typedef struct minimap_v
+{
+	int begin_x;
+	int begin_y;
+	int end_x;
+	int end_y;
+} t_minimap;
 
 typedef struct s_map
 {
@@ -144,14 +159,18 @@ void	move_up(t_player *p, char **mapValues);
 void	key_func(void *param);
 void	terminate_game(t_map_e *m);
 int		get_rgba(int r, int g, int b, int a);
-void	draw_block(mlx_image_t *img, int x, int y, char value);
+void	draw_block(t_map_e *m
+, int x, int y, char value, t_minimap *mini);
+uint32_t cast_to_minimap(int old_v, int o_l, int o_m, int flag);
+double cast_to_window(double old_v, int o_l, int o_m, int flag);
 void	apply_dda_algorithm(t_map_e *m);
-void	draw_player(t_map_e *map);
+void	draw_player(t_map_e *map, t_minimap *mini);
 void	apply_dda_algorithm(t_map_e *m);
 void	draw_3d_walls(t_map_e *m);
 void	ft_lstadd_back(t_ray **lst, t_ray *new);
 t_ray	*ft_lstnew(double x);
 void	draw_mini_map(t_map_e *m, char **data, int flag);
+int		row_empty(char *s);
 int		wall_contact(t_player *p, char **mapValues);
 void	init_player_instance(t_map_e *map3d, t_map *data);
 void	my_put_mlx(t_map_e *map, int x, int y);
@@ -163,15 +182,15 @@ void	draw_floor(t_wall *w, t_map_e *m, int x);
 void	apply_dda_algorithm(t_map_e *m);
 int		ray_is_facing_left(double angle);
 int		ray_is_facing_down(double angle);
-long	calculate_magnitude(t_player *player, double x, double y);
+double	calculate_magnitude(t_player *player, double x, double y);
 void	draw_line(t_map_e *m, double angle, long h_distance);
-long	find_horizontal_distance(t_map_e *m, t_ray **h, double angle);
-long	find_vertical_distance(t_map_e *m, t_ray **v, double angle);
+double	find_horizontal_distance(t_map_e *m, t_ray **h, double angle);
+double	find_vertical_distance(t_map_e *m, t_ray **v, double angle);
 void	update_angle(double *angle);
 long	find_min(long a, long b);
 void	ft_lstadd_a_back(t_data **lst, t_data *new);
 t_data	*ft_lstnew_ad(void *address);
-void	draw_map(t_map_e *m, char **data, int flag);
+void	draw_map(t_map_e *m, char **data, int flag, t_minimap *mini);
 int		mouvement_is_blocked(char **mapValues,
 			int map_y, int map_x, double angle);
 void	init_player_position(t_player *p, int i, int j, char direction);
@@ -180,6 +199,7 @@ void	render_wall(t_map_e *m, t_ray *ray, t_wall *w, int x);
 void	free_all_exit(t_map_e *map, t_map *data);
 void	close_function(void *param);
 void	allocate_cal_struc(t_ray_calc	**cal);
+double ft_fabs(double value);
 
 
 int		parsse_args(char *str);
@@ -187,7 +207,6 @@ t_map	*parssing(int arc, char **arv);
 char	**allocate_all_lines(int fd, char **arv);
 char	**parsse_all_lines(char **str);
 char	**allocate_str(char **str);
-int		check_line_spaces(char *str);
 void	parsse_textures(char **str, t_map *textures);
 t_map	*allocate_textures(void);
 void	put_0_1(char **str, t_map *textures);
@@ -223,6 +242,5 @@ void	check_f_c(char **str, t_map *textures);
 void	continue_check_f_c(char **str, t_map *textures, char *s);
 void	continue_f_c(char **str, t_map *textures, char *s, int *j);
 char	*ft_copy(char *str, size_t start, size_t end);
-
 
 #endif

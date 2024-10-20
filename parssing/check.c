@@ -6,25 +6,11 @@
 /*   By: haalouan <haalouan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/23 15:18:29 by haalouan          #+#    #+#             */
-/*   Updated: 2024/10/16 18:06:20 by haalouan         ###   ########.fr       */
+/*   Updated: 2024/10/20 20:18:34 by haalouan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
-
-int	check_line_spaces(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str && str[i])
-	{
-		if (str[i] && str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
-			return (1);
-		i++;
-	}
-	return (0);
-}
 
 int	parsse_args(char *str)
 {

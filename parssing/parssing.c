@@ -6,7 +6,7 @@
 /*   By: haalouan <haalouan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/22 11:56:23 by haalouan          #+#    #+#             */
-/*   Updated: 2024/10/16 16:26:19 by haalouan         ###   ########.fr       */
+/*   Updated: 2024/10/20 20:26:22 by haalouan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ t_map	*parssing(int arc, char **arv)
 	all_lines = parsse_all_lines(all_lines);
 	textures = allocate_textures();
 	parsse_textures(all_lines, textures);
+	// exit(1);
 	parsse_map(all_lines, textures);
 	free_all_lines(all_lines);
 	return (textures);
@@ -64,6 +65,8 @@ void	check_map(char **str)
 		k = 0;
 		while (str && str[i] && (str[i][k] == ' ' || str[i][k] == '\t'))
 			k++;
+		if (str[i][k] == '\n' && k != 0)
+			exit(printf("ERROR IN MAP\n"));
 		if (ft_strncmp(str[i] + k, "NO", 2) != 0
 			&& ft_strncmp(str[i] + k, "SO", 2) != 0
 			&& ft_strncmp(str[i] + k, "EA", 2) != 0
